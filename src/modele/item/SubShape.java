@@ -1,5 +1,5 @@
 package modele.item;
 
 public enum SubShape {
-    Circle, Carre, Fan, Star, None
+    Circle, QuartCircleTopRight, QuartCircleTopLeft, QuartCircleBottomRight, QuartCircleBottomLeft, Carre, Fan, Star, None
 }

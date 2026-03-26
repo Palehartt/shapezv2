@@ -1,6 +1,9 @@
 package modele.plateau;
 
+import modele.item.Item;
+import modele.item.ItemGisement;
 import modele.item.ItemShape;
+import modele.item.SubShape;
 
 import java.util.Random;
 
@@ -9,10 +12,20 @@ public class Mine extends Machine {
 
     @Override
     public void work() { // TODO : modifier, suivant le gisement
-        if (i == 0) {
-            System.out.println("Nouvelle mine");
-            i++;
-            current.add(new ItemShape("CrCb--Cb"));
+        Item item = c.getGisement();
+        if (item instanceof ItemGisement) {
+            if (((ItemGisement) item).getSubShape().equals(SubShape.Carre)) {
+                if (new Random().nextInt(4) == 0) {
+                    i++;
+                    current.add(new ItemShape("Cw"));
+                }
+            } else if (((ItemGisement) item).getSubShape().equals(SubShape.Circle)) {
+                if (new Random().nextInt(4) == 0) {
+                    i++;
+                    current.add(new ItemShape("Rw"));
+                }
+            }
+
         }
     }
 }

@@ -7,6 +7,10 @@ package modele.plateau;
 
 
 
+import modele.item.Color;
+import modele.item.Item;
+import modele.item.SubShape;
+
 import java.util.HashMap;
 import java.util.Observable;
 
@@ -54,6 +58,26 @@ public class Plateau extends Observable implements Runnable {
         notifyObservers();
     }
 
+    public void setGisement(int x, int y, SubShape shape) {
+        grilleCases[x][y].setGisement(shape);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setGisement(int x, int y, Color color) {
+        grilleCases[x][y].setGisement(color);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void rotateMachine(int x, int y) {
+        Machine m = grilleCases[x][y].getMachine();
+        if (m != null) {
+            m.rotate();
+            refresh();
+        }
+    }
+
 
     /**
      * Indique si p est contenu dans la grille
@@ -69,6 +93,11 @@ public class Plateau extends Observable implements Runnable {
             retour = grilleCases[p.x][p.y];
         }
         return retour;
+    }
+
+    public void refresh() {
+        setChanged();
+        notifyObservers();
     }
 
 

@@ -5,8 +5,7 @@
  */
 package modele.plateau;
 
-import modele.item.Item;
-import modele.item.ItemShape;
+import modele.item.*;
 
 public class Case {
 
@@ -30,4 +29,15 @@ public class Case {
         plateau = _plateau;
     }
 
+    public void setGisement(SubShape shape) {
+        gisement = new ItemGisement(shape);
+    }
+
+    public void setGisement(Color color) {
+        gisement = new ItemGisement(color);
+    }
+
+    public Item getGisement() {
+        return gisement;
+    }
 }

@@ -5,6 +5,7 @@ import modele.item.SubShape;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ImagePanel extends JPanel {
     private Image imgBackground;
@@ -18,6 +19,28 @@ public class ImagePanel extends JPanel {
 
     public void setBackground(Image _imgBackground) {
         imgBackground = _imgBackground;
+    }
+
+    public Image rotateImage(Image img, double angleDegrees) {
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        if (w < 0 || h < 0) return img; // safeguard si image non chargée
+
+        BufferedImage rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotated.createGraphics();
+
+        // activer l'interpolation pour lisser la rotation
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // rotation autour du centre
+        g2d.rotate(Math.toRadians(angleDegrees), w / 2.0, h / 2.0);
+
+        // dessiner l'image
+        g2d.drawImage(img, 0, 0, null);
+
+        g2d.dispose();
+        return rotated;
     }
 
     public void setFront(Image _imgFront) {
@@ -78,11 +101,38 @@ public class ImagePanel extends JPanel {
                             // TODO autres couleurs
                         }
 
+                        int x = xFront + (widthFront / 2) * ((i >> 1) ^ 1);
+                        int y = yFront + (heigthFront / 2) * ((i & 1) ^ ((i >> 1) & 1));
+                        int w = widthFront / 2;
+                        int h = heigthFront / 2;
                         switch (ss) {
                             case SubShape.Carre:
-                                g.fillRect(xFront + (widthFront / 2) * ((i >> 1) ^ 1), yFront + (heigthFront / 2) * ((i & 1) ^ ((i >> 1) & 1)), widthFront / 2, heigthFront / 2);
+                                g.fillRect(x, y, widthFront / 2, heigthFront / 2);
                                 break;
-                            // TODO autres formes
+
+                            case SubShape.Circle:
+                                g.fillOval(x, y, widthFront / 2, heigthFront / 2);
+                                break;
+
+                            case SubShape.QuartCircleTopRight:
+                                // Cercle décalé à gauche : seul le quart droit-haut est visible
+                                g.fillArc(x - w, y, w * 2, h * 2, 0, 90);
+                                break;
+
+                            case SubShape.QuartCircleTopLeft:
+                                // Cercle décalé à droite : seul le quart gauche-haut est visible
+                                g.fillArc(x, y, w * 2, h * 2, 90, 90);
+                                break;
+
+                            case SubShape.QuartCircleBottomLeft:
+                                // Cercle décalé en haut à droite
+                                g.fillArc(x, y - h, w * 2, h * 2, 180, 90);
+                                break;
+
+                            case SubShape.QuartCircleBottomRight:
+                                // Cercle décalé en haut à gauche
+                                g.fillArc(x - w, y - h, w * 2, h * 2, 270, 90);
+                                break;
                         }
                     }
                 }

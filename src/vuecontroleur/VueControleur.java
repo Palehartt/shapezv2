@@ -1,16 +1,14 @@
 package vuecontroleur;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.*;
 
 
-import modele.item.Item;
-import modele.item.ItemColor;
-import modele.item.ItemShape;
+import modele.item.*;
+import modele.item.Color;
 import modele.jeu.Jeu;
 import modele.plateau.*;
 
@@ -28,10 +26,25 @@ public class VueControleur extends JFrame implements Observer {
     private static final int pxCase = 82; // nombre de pixel par case
     // icones affichées dans la grille
     private Image icoRouge;
+    private Image icoTapisHaut;
     private Image icoTapisDroite;
+    private Image icoTapisGauche;
     private Image icoPoubelle;
     private Image icoMine;
     private Image icoLivraison;
+
+    private Image icoGisementCarre;
+    private Image icoGisementCercle;
+
+    private Image icoRed;
+    private Image icoBlue;
+    private Image icoGreen;
+    private Image icoYellow;
+    private Image icoPurple;
+
+
+    private ObjetChoisi objetChoisi;
+    private Direction directionObjetChoisi;
 
     private JComponent grilleIP;
 
@@ -59,10 +72,20 @@ public class VueControleur extends JFrame implements Observer {
     private void chargerLesIcones() {
 
         icoRouge = new ImageIcon("./data/sprites/colors/blue.png").getImage();
-        icoTapisDroite = new ImageIcon("./data/sprites/buildings/belt_top.png").getImage();
+        icoTapisHaut = new ImageIcon("./data/sprites/buildings/belt_top.png").getImage();
+        icoTapisGauche = new ImageIcon("./data/sprites/buildings/belt_left.png").getImage();
+        icoTapisDroite = new ImageIcon("./data/sprites/buildings/belt_right.png").getImage();
+        icoGisementCarre = new ImageIcon("./data/sprites/shapes/Carre.png").getImage();
+        icoGisementCercle  = new ImageIcon("./data/sprites/shapes/Cercle.png").getImage();
 
         icoPoubelle = new ImageIcon("./data/sprites/buildings/trash.png").getImage();
         icoMine = new ImageIcon("./data/sprites/buildings/miner.png").getImage();
+
+        icoRed = new ImageIcon("./data/sprites/colors/red.png").getImage();
+        icoBlue = new ImageIcon("./data/sprites/colors/blue.png").getImage();
+        icoGreen = new ImageIcon("./data/sprites/colors/green.png").getImage();
+        icoPurple = new ImageIcon("./data/sprites/colors/purple.png").getImage();
+        icoYellow = new ImageIcon("./data/sprites/colors/yellow.png").getImage();
 
         icoLivraison = new ImageIcon("./data/sprites/buildings/goal_acceptor.png").getImage();
 
@@ -78,8 +101,83 @@ public class VueControleur extends JFrame implements Observer {
 
         grilleIP = new JPanel(new GridLayout(sizeY, sizeX)); // grilleJLabels va contenir les cases graphiques et les positionner sous la forme d'une grille
 
+        InputMap im = grilleIP.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = grilleIP.getActionMap();
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "left");
+        am.put("left", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                directionObjetChoisi = Direction.West;
+
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "right");
+        am.put("right", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                directionObjetChoisi = Direction.East;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "up");
+        am.put("up", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                directionObjetChoisi = Direction.North;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "down");
+        am.put("down", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                directionObjetChoisi = Direction.South;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), "tapis");
+        am.put("tapis", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Tapis;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0), "mine");
+        am.put("mine", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Mine;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "poubelle");
+        am.put("poubelle", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Poubelle;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "couteau");
+        am.put("couteau", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Couteau;
+//                mettreAJourAffichage();
+            }
+        });
 
         tabIP = new ImagePanel[sizeX][sizeY];
+
 
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
@@ -94,7 +192,7 @@ public class VueControleur extends JFrame implements Observer {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         mousePressed = false;
-                        jeu.press(xx, yy);
+                        jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
                         System.out.println(xx + "-" + yy);
                     }
 
@@ -108,7 +206,7 @@ public class VueControleur extends JFrame implements Observer {
                     @Override
                     public void mousePressed(MouseEvent e) {
                         mousePressed = true;
-                        jeu.press(xx, yy);
+                        jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
                     }
 
                     @Override
@@ -125,34 +223,69 @@ public class VueControleur extends JFrame implements Observer {
         add(grilleIP);
     }
 
-    
-    /**
-     * Il y a une grille du côté du modèle ( jeu.getGrille() ) et une grille du côté de la vue (tabIP)
-     */
-    private void mettreAJourAffichage() {
-
-
+   private void mettreAJourAffichage() {
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
 
                 tabIP[x][y].setBackground((Image) null);
-
                 tabIP[x][y].setFront(null);
+                tabIP[x][y].setShape(null);
 
                 Case c = plateau.getCases()[x][y];
-
                 Machine m = c.getMachine();
+                Item g = c.getGisement();
+
+                if (g != null) {
+                    if (g instanceof ItemGisement) {
+                        if  (((ItemGisement) g).getSubShape().equals(SubShape.Carre)) {
+                            tabIP[x][y].setBackground(icoGisementCarre);
+                        } else if (((ItemGisement) g).getSubShape().equals(SubShape.Circle)) {
+                            tabIP[x][y].setBackground(icoGisementCercle);
+                        } else if (((ItemGisement) g).getColor().equals(Color.Red)) {
+                            tabIP[x][y].setBackground(icoRed);
+                        }
+                    }
+                }
 
                 if (m != null) {
+                    if (m instanceof Tapis tapis) {
+                        Direction d = tapis.getDirection();
+                        double angle = switch (d) {
+                            case North -> 0;
+                            case East  -> 90;
+                            case South -> 180;
+                            case West  -> 270;
+                        };
 
-                    if (m instanceof Tapis) {
-                        tabIP[x][y].setBackground(icoTapisDroite);
+                        Image baseSprite = switch (tapis.getType()) {
+                            case Droit         -> icoTapisHaut;
+                            case VirageGauche  -> icoTapisGauche;
+                            case ViragedDroite -> icoTapisDroite;
+                        };
+
+                        tabIP[x][y].setBackground(tabIP[x][y].rotateImage(baseSprite, angle));
+
                     } else if (m instanceof Poubelle) {
                         tabIP[x][y].setBackground(icoPoubelle);
+
                     } else if (m instanceof Mine) {
-                        tabIP[x][y].setBackground(icoMine);
-                    } else if (m instanceof Livraison) {
-                        tabIP[x][y].setBackground(icoLivraison);
+                        Direction d = m.getDirection();
+                        double angle = switch (d) {
+                            case North -> 0;
+                            case East  -> 90;
+                            case South -> 180;
+                            case West  -> 270;
+                        };
+                        tabIP[x][y].setBackground(tabIP[x][y].rotateImage(icoMine, angle));
+                    } else if  (m instanceof Livraison) {
+                        Direction d = m.getDirection();
+                        double angle = switch (d) {
+                            case North -> 0;
+                            case East  -> 90;
+                            case South -> 180;
+                            case West  -> 270;
+                        };
+                        tabIP[x][y].setBackground(tabIP[x][y].rotateImage(icoLivraison, angle));
                     }
 
                     Item current = m.getCurrent();
@@ -161,20 +294,12 @@ public class VueControleur extends JFrame implements Observer {
                         tabIP[x][y].setShape((ItemShape) current);
                     }
                     if (current instanceof ItemColor) {
-                        // tabIP[x][y].setFront(); TODO : placer l'icone des couleurs approprié
+                        // TODO : placer l'icône couleur appropriée
                     }
-
                 }
-
-
-
-
-
             }
         }
         grilleIP.repaint();
-
-
     }
 
     @Override
