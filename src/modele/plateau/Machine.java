@@ -3,18 +3,24 @@ package modele.plateau;
 import modele.item.Item;
 import modele.item.ItemShape;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public abstract class Machine implements Runnable {
     LinkedList<Item> current;
-
-    Case c;
-    Direction d = Direction.North; // par défaut, pour commencer, tout est orienté au north
+    Case c;           // case principale
+    List<Case> casesOccupées = new ArrayList<>(); // cases supplémentaires
+    Direction d = Direction.North;
 
     public Machine()
     {
         current = new LinkedList<Item>();
+    }
+
+    public List<Case> getCasesOccupees() {
+        return casesOccupées;
     }
 
     public Machine(Item _item) {
@@ -102,5 +108,7 @@ public abstract class Machine implements Runnable {
     }
 
 
-
+    public Case getCase() {
+        return c;
+    }
 }

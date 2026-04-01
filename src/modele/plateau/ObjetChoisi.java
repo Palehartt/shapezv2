@@ -1,5 +1,5 @@
 package modele.plateau;
 
 public enum ObjetChoisi {
-    Livraison, Poubelle, Tapis, Mine, Couteau;
+    Livraison, Poubelle, Tapis, Mine, Ciseaux;
 }

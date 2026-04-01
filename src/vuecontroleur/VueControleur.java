@@ -11,6 +11,7 @@ import modele.item.*;
 import modele.item.Color;
 import modele.jeu.Jeu;
 import modele.plateau.*;
+import modele.plateau.Point;
 
 
 /** Cette classe a deux fonctions :
@@ -32,6 +33,7 @@ public class VueControleur extends JFrame implements Observer {
     private Image icoPoubelle;
     private Image icoMine;
     private Image icoLivraison;
+    private Image icoCiseaux;
 
     private Image icoGisementCarre;
     private Image icoGisementCercle;
@@ -75,10 +77,10 @@ public class VueControleur extends JFrame implements Observer {
         icoTapisHaut = new ImageIcon("./data/sprites/buildings/belt_top.png").getImage();
         icoTapisGauche = new ImageIcon("./data/sprites/buildings/belt_left.png").getImage();
         icoTapisDroite = new ImageIcon("./data/sprites/buildings/belt_right.png").getImage();
-        icoGisementCarre = new ImageIcon("./data/sprites/shapes/Carre.png").getImage();
-        icoGisementCercle  = new ImageIcon("./data/sprites/shapes/Cercle.png").getImage();
 
         icoPoubelle = new ImageIcon("./data/sprites/buildings/trash.png").getImage();
+        icoMine = new ImageIcon("./data/sprites/buildings/miner.png").getImage();
+        icoCiseaux = new ImageIcon("./data/sprites/buildings/cutter.png").getImage();
         icoMine = new ImageIcon("./data/sprites/buildings/miner.png").getImage();
 
         icoRed = new ImageIcon("./data/sprites/colors/red.png").getImage();
@@ -158,20 +160,20 @@ public class VueControleur extends JFrame implements Observer {
             }
         });
 
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "cutter");
+        am.put("cutter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Ciseaux;
+//                mettreAJourAffichage();
+            }
+        });
+
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "poubelle");
         am.put("poubelle", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 objetChoisi = ObjetChoisi.Poubelle;
-//                mettreAJourAffichage();
-            }
-        });
-
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "couteau");
-        am.put("couteau", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                objetChoisi = ObjetChoisi.Couteau;
 //                mettreAJourAffichage();
             }
         });
@@ -230,20 +232,28 @@ public class VueControleur extends JFrame implements Observer {
                 tabIP[x][y].setBackground((Image) null);
                 tabIP[x][y].setFront(null);
                 tabIP[x][y].setShape(null);
+                tabIP[x][y].setGissement(null);
 
                 Case c = plateau.getCases()[x][y];
                 Machine m = c.getMachine();
+
+                if (m == null && c.getMachineEsclave() != null) {
+                    m = c.getMachineEsclave();
+                }
                 Item g = c.getGisement();
 
                 if (g != null) {
                     if (g instanceof ItemGisement) {
-                        if  (((ItemGisement) g).getSubShape().equals(SubShape.Carre)) {
+                        /*if  (((ItemGisement) g).getSubShape().equals(SubShape.Carre)) {
                             tabIP[x][y].setBackground(icoGisementCarre);
                         } else if (((ItemGisement) g).getSubShape().equals(SubShape.Circle)) {
                             tabIP[x][y].setBackground(icoGisementCercle);
                         } else if (((ItemGisement) g).getColor().equals(Color.Red)) {
                             tabIP[x][y].setBackground(icoRed);
-                        }
+                        }*/
+                        //tabIP[x][y].setBackground((Image) null);
+                        tabIP[x][y].setShape(((ItemGisement) g).getItemShape());
+                        tabIP[x][y].setGissement(((ItemGisement) g).getItemShape());
                     }
                 }
 
@@ -252,14 +262,14 @@ public class VueControleur extends JFrame implements Observer {
                         Direction d = tapis.getDirection();
                         double angle = switch (d) {
                             case North -> 0;
-                            case East  -> 90;
+                            case East -> 90;
                             case South -> 180;
-                            case West  -> 270;
+                            case West -> 270;
                         };
 
                         Image baseSprite = switch (tapis.getType()) {
-                            case Droit         -> icoTapisHaut;
-                            case VirageGauche  -> icoTapisGauche;
+                            case Droit -> icoTapisHaut;
+                            case VirageGauche -> icoTapisGauche;
                             case ViragedDroite -> icoTapisDroite;
                         };
 
@@ -272,20 +282,48 @@ public class VueControleur extends JFrame implements Observer {
                         Direction d = m.getDirection();
                         double angle = switch (d) {
                             case North -> 0;
-                            case East  -> 90;
+                            case East -> 90;
                             case South -> 180;
-                            case West  -> 270;
+                            case West -> 270;
                         };
                         tabIP[x][y].setBackground(tabIP[x][y].rotateImage(icoMine, angle));
-                    } else if  (m instanceof Livraison) {
+                    } else if (m instanceof Livraison) {
                         Direction d = m.getDirection();
                         double angle = switch (d) {
                             case North -> 0;
-                            case East  -> 90;
+                            case East -> 90;
                             case South -> 180;
-                            case West  -> 270;
+                            case West -> 270;
                         };
                         tabIP[x][y].setBackground(tabIP[x][y].rotateImage(icoLivraison, angle));
+                    } else if (m instanceof Ciseaux ciseaux) {
+                        Point posMain = plateau.getPosition(ciseaux.getCase());
+                        int offsetX = x - posMain.x;
+                        int offsetY = y - posMain.y;
+
+                        int totalW = 0;
+                        int totalH = 0;
+
+                        switch (ciseaux.getDirection()) {
+                            case North, South -> { totalW = 2; totalH = 1; }
+                            case East,  West  -> { totalW = 1; totalH = 2; }
+                        }
+
+                        double angle = switch (ciseaux.getDirection()) {
+                            case North -> 0;
+                            case East -> 90;
+                            case South -> 180;
+                            case West -> 270;
+                        };
+
+                        Image spriteRotate = tabIP[x][y].rotateImage(icoCiseaux, angle);
+
+                        switch (ciseaux.getDirection()) {
+                            case North -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
+                            case South -> tabIP[x][y].setBackground(spriteRotate, offsetX+1, offsetY, totalW, totalH);
+                            case East  -> tabIP[x][y].setBackground(spriteRotate, offsetY, offsetX, totalW, totalH);
+                            case West  -> tabIP[x][y].setBackground(spriteRotate, offsetX, 0, totalW, totalH);
+                        }
                     }
 
                     Item current = m.getCurrent();
@@ -314,3 +352,5 @@ public class VueControleur extends JFrame implements Observer {
 
     }
 }
+
+

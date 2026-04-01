@@ -18,6 +18,17 @@ public class ItemGisement extends Item {
         return subShape;
     }
 
+    public ItemShape getItemShape() {
+        switch (subShape) {
+            case Carre:
+                return new ItemShape("CrCrCrCr");
+            case Circle:
+                return new ItemShape("RrRrRrR");
+            case None:
+        }
+        return null;
+    }
+
     public Color getColor() {
         return color;
     }

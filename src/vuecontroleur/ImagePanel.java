@@ -11,15 +11,30 @@ public class ImagePanel extends JPanel {
     private Image imgBackground;
     private Image imgFront;
     private ItemShape shape;
+    private ItemShape gissement;
 
+    private int spriteOffsetX = 0;
+    private int spriteOffsetY = 0;
+    private int spriteTotalW = 1;
+    private int spriteTotalH = 1;
+
+    public ImagePanel() {
+        setOpaque(true);
+    }
 
     public void setShape(ItemShape _shape) {
         shape = _shape;
     }
 
-    public void setBackground(Image _imgBackground) {
-        imgBackground = _imgBackground;
+    public void setBackground(Image img) {
+        imgBackground = img;
+        spriteOffsetX = 0;
+        spriteOffsetY = 0;
+        spriteTotalW = 1;
+        spriteTotalH = 1;
     }
+
+    public void setGissement(ItemShape _gissement) { gissement = _gissement; }
 
     public Image rotateImage(Image img, double angleDegrees) {
         int w = img.getWidth(null);
@@ -41,6 +56,14 @@ public class ImagePanel extends JPanel {
 
         g2d.dispose();
         return rotated;
+    }
+
+    public void setBackground(Image img, int offsetX, int offsetY, int totalW, int totalH) {
+        imgBackground = img;
+        spriteOffsetX = offsetX;
+        spriteOffsetY = offsetY;
+        spriteTotalW = totalW;
+        spriteTotalH = totalH;
     }
 
     public void setFront(Image _imgFront) {
@@ -68,15 +91,27 @@ public class ImagePanel extends JPanel {
         // cadre
         g.drawRoundRect(bordure, bordure, widthBack, heigthBack, bordure, bordure);
 
+        if(gissement != null) {
+            g.setColor(new Color(165, 165, 176, 100)); // plus opaque pour être visible
+            g.fillRect(xBack, yBack, widthBack, heigthBack);
+        }
 
         if (imgBackground != null) {
+            int srcX = (imgBackground.getWidth(null) * spriteOffsetX) / spriteTotalW;
+            int srcY = (imgBackground.getHeight(null) * spriteOffsetY) / spriteTotalH;
+            int srcW = imgBackground.getWidth(null) / spriteTotalW;
+            int srcH = imgBackground.getHeight(null) / spriteTotalH;
 
-            g.drawImage(imgBackground, xBack, yBack, widthBack, heigthBack, this);
+            g.drawImage(imgBackground,
+                    xBack, yBack, xBack + widthBack, yBack + heigthBack,  // destination
+                    srcX, srcY, srcX + srcW, srcY + srcH,                 // source
+                    this);
         }
 
         if (imgFront != null) {
             g.drawImage(imgFront, xFront, yFront, widthFront, heigthFront, this);
         }
+
 
 
         if (shape != null) {

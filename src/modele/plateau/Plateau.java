@@ -12,6 +12,7 @@ import modele.item.Item;
 import modele.item.SubShape;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Observable;
 
 
@@ -53,9 +54,37 @@ public class Plateau extends Observable implements Runnable {
     }
 
     public void setMachine(int x, int y, Machine m) {
-        grilleCases[x][y].setMachine(m);
+        if (m == null) {
+            Machine old = grilleCases[x][y].getMachine();
+            if (old != null) {
+                for (Case esclave : old.getCasesOccupees()) {
+                    esclave.setMachineEsclave(null);
+                }
+            }
+            grilleCases[x][y].setMachine(null);
+        } else {
+            grilleCases[x][y].setMachine(m);
+        }
         setChanged();
         notifyObservers();
+    }
+
+    public void setMachine(int x, int y, Machine m, List<Point> offsets) {
+        grilleCases[x][y].setMachine(m); // setCase est appelé ici -> c = case principale
+
+        for (Point offset : offsets) {
+            System.out.println("M : " + x + " " + y + " Esclave : " + (x + offset.x) + " " + (y + offset.y));
+            Case esclave = grilleCases[x + offset.x][y + offset.y];
+            esclave.setMachineEsclave(m); // ne doit PAS appeler setCase
+            m.getCasesOccupees().add(esclave);
+        }
+
+        setChanged();
+        notifyObservers();
+    }
+
+    public Point getPosition(Case c) {
+        return map.get(c);
     }
 
     public void setGisement(int x, int y, SubShape shape) {
@@ -101,16 +130,31 @@ public class Plateau extends Observable implements Runnable {
     }
 
 
+    // Plateau.run()
     @Override
     public void run() {
-        for (int x = 0; x < SIZE_X; x++) {
+        // Snapshot : mémoriser les items actuels de chaque machine
+        HashMap<Machine, Item> snapshot = new HashMap<>();
+        for (int x = 0; x < SIZE_X; x++)
             for (int y = 0; y < SIZE_Y; y++) {
-                Case c = grilleCases[x][y];
-                if (c.getMachine() != null) {
-                    c.getMachine().run();
-                }
+                Machine m = grilleCases[x][y].getMachine();
+                if (m != null) snapshot.put(m, m.getCurrent());
             }
-        }
+
+        // Work sur tout le monde
+        for (int x = 0; x < SIZE_X; x++)
+            for (int y = 0; y < SIZE_Y; y++) {
+                Machine m = grilleCases[x][y].getMachine();
+                if (m != null) m.work();
+            }
+
+        // Send uniquement si la machine avait un item AU DÉBUT du tick
+        for (int x = 0; x < SIZE_X; x++)
+            for (int y = 0; y < SIZE_Y; y++) {
+                Machine m = grilleCases[x][y].getMachine();
+                if (m != null && snapshot.get(m) != null) m.send();
+            }
+
         setChanged();
         notifyObservers();
     }

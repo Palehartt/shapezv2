@@ -12,8 +12,8 @@ public class Case {
 
     protected Plateau plateau;
     protected Machine machine;
-    protected Item gisement; // certaines cases sont des gisements, pour placer des mines
-
+    protected Machine machineEsclave; // référence vers une machine qui déborde ici
+    protected Item gisement;
 
     public void setMachine(Machine m) {
         machine = m;
@@ -22,6 +22,18 @@ public class Case {
 
     public Machine getMachine() {
         return machine;
+    }
+
+    public Machine getMachineEsclave() {
+        return machineEsclave;
+    }
+
+    public boolean isEsclave() {
+        return machine == null && machineEsclave != null;
+    }
+
+    public void setMachineEsclave(Machine m) {
+        machineEsclave = m;
     }
 
     public Case(Plateau _plateau) {

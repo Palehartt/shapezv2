@@ -5,6 +5,8 @@ import modele.item.SubShape;
 import modele.plateau.*;
 import modele.item.ItemShape;
 
+import java.util.List;
+
 public class Jeu extends Thread{
     private Plateau plateau;
 
@@ -21,20 +23,20 @@ public class Jeu extends Thread{
 
     public void environnement(Plateau plateau) {
         // génération de 5 gisements
-        int emplacement_color_x = 13;
-        int emplacement_color_y = 13;
-
-        int emplacement_shape_x = 0;
-        int emplacement_shape_y = 0;
-
-        for(int i=emplacement_shape_x; i<emplacement_shape_x+3; i++)
-            for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
-                plateau.setGisement(i, j, SubShape.Carre);
-
-        for(int i=emplacement_color_x; i<emplacement_color_x+3; i++)
-            for(int j=emplacement_color_y; j<emplacement_color_y+3; j++)
-                plateau.setGisement(i, j, Color.Red);
-        plateau.setMachine(9, 9, new Livraison());
+//        int emplacement_color_x = 13;
+//        int emplacement_color_y = 13;
+//
+//        int emplacement_shape_x = 0;
+//        int emplacement_shape_y = 13;
+//
+//        for(int i=emplacement_shape_x; i<emplacement_shape_x+3; i++)
+//            for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
+//                plateau.setGisement(i, j, SubShape.Carre);
+//
+//        for(int i=emplacement_color_x; i<emplacement_color_x+3; i++)
+//            for(int j=emplacement_color_y; j<emplacement_color_y+3; j++)
+//                plateau.setGisement(i, j, Color.Red);
+//        plateau.setMachine(9, 9, new Livraison());
         // plateau.setMachine(1, 12, new Livraison());
     }
 
@@ -70,6 +72,11 @@ public class Jeu extends Thread{
                     m = new Mine();
                     m.setDirection(d);
                     plateau.setMachine(x, y, m);
+                    break;
+                case Ciseaux :
+                    m = new Ciseaux();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m, Ciseaux.getOffsets(d));
                     break;
                 default:
                     plateau.setMachine(x, y, null);
