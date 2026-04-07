@@ -23,25 +23,42 @@ public class Jeu extends Thread{
 
     public void environnement(Plateau plateau) {
         // génération de 5 gisements
-//        int emplacement_color_x = 13;
-//        int emplacement_color_y = 13;
-//
-//        int emplacement_shape_x = 0;
-//        int emplacement_shape_y = 13;
-//
-//        for(int i=emplacement_shape_x; i<emplacement_shape_x+3; i++)
-//            for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
-//                plateau.setGisement(i, j, SubShape.Carre);
-//
-//        for(int i=emplacement_color_x; i<emplacement_color_x+3; i++)
-//            for(int j=emplacement_color_y; j<emplacement_color_y+3; j++)
-//                plateau.setGisement(i, j, Color.Red);
-//        plateau.setMachine(9, 9, new Livraison());
-        // plateau.setMachine(1, 12, new Livraison());
+        int emplacement_color_x = 13;
+        int emplacement_color_y = 13;
+
+        int emplacement_color_xx = 10;
+        int emplacement_color_yy = 10;
+
+        int emplacement_shape_x = 0;
+        int emplacement_shape_y = 13;
+
+        for(int i=emplacement_shape_x; i<emplacement_shape_x+3; i++)
+            for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
+                plateau.setGisement(i, j, SubShape.Carre);
+
+        for(int i=emplacement_color_x; i<emplacement_color_x+3; i++)
+            for(int j=emplacement_color_y; j<emplacement_color_y+3; j++)
+                plateau.setGisement(i, j, Color.Red);
+
+        for(int i=emplacement_color_xx; i<emplacement_color_xx+3; i++)
+            for(int j=emplacement_color_yy; j<emplacement_color_yy+3; j++)
+                plateau.setGisement(i, j, Color.Blue);
+
+        plateau.setMachine(4, 4, new Hub(), Hub.getOffsets(Direction.North));
     }
 
     public Plateau getPlateau() {
         return plateau;
+    }
+
+    public void supprimer(int x, int y) {
+        Case c = plateau.getCases()[x][y];
+        Machine m = c.getMachine();
+
+        if (m == null) return;           // rien à supprimer
+        if (m instanceof Livraison) return; // on protège le hub
+
+        plateau.removeMachine(x, y);
     }
 
 
@@ -77,6 +94,21 @@ public class Jeu extends Thread{
                     m = new Ciseaux();
                     m.setDirection(d);
                     plateau.setMachine(x, y, m, Ciseaux.getOffsets(d));
+                    break;
+                case Hub:
+                    m = new Hub();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m, Hub.getOffsets(d));
+                    break;
+                case Mixer:
+                    m = new Mixer();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m, Mixer.getOffsets(d));
+                    break;
+                case Pivoteur:
+                    m = new Pivoteur();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m);
                     break;
                 default:
                     plateau.setMachine(x, y, null);

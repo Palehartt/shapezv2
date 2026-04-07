@@ -7,4 +7,10 @@ public class ItemColor extends Item {
 
     }
 
+    public Color getColor() { return color; }
+    public ItemColor() {
+    }
+    public ItemColor(Color color) {
+        this.color = color;
+    }
 }

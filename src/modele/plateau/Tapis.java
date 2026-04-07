@@ -1,5 +1,7 @@
 package modele.plateau;
 
+import modele.item.Item;
+
 public class Tapis extends Machine {
 
     public enum TapisType { Droit, VirageGauche, ViragedDroite }
@@ -44,5 +46,4 @@ public class Tapis extends Machine {
             };
         };
     }
-
 }

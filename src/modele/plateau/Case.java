@@ -17,7 +17,9 @@ public class Case {
 
     public void setMachine(Machine m) {
         machine = m;
-        m.setCase(this);
+        if (m != null) {
+            m.setCase(this);
+        }
     }
 
     public Machine getMachine() {

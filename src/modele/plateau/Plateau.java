@@ -70,12 +70,21 @@ public class Plateau extends Observable implements Runnable {
     }
 
     public void setMachine(int x, int y, Machine m, List<Point> offsets) {
-        grilleCases[x][y].setMachine(m); // setCase est appelé ici -> c = case principale
+        grilleCases[x][y].setMachine(m);
 
         for (Point offset : offsets) {
-            System.out.println("M : " + x + " " + y + " Esclave : " + (x + offset.x) + " " + (y + offset.y));
-            Case esclave = grilleCases[x + offset.x][y + offset.y];
-            esclave.setMachineEsclave(m); // ne doit PAS appeler setCase
+            Case esclave;
+
+            // Si c'est un Hub, chaque case esclave a sa propre file
+            if (m instanceof Hub) {
+                esclave = new CaseHub(this);
+                grilleCases[x + offset.x][y + offset.y] = esclave;
+                map.put(esclave, new Point(x + offset.x, y + offset.y));
+            } else {
+                esclave = grilleCases[x + offset.x][y + offset.y];
+            }
+
+            esclave.setMachineEsclave(m);
             m.getCasesOccupees().add(esclave);
         }
 
@@ -125,6 +134,12 @@ public class Plateau extends Observable implements Runnable {
     }
 
     public void refresh() {
+        setChanged();
+        notifyObservers();
+    }
+
+    public void removeMachine(int x, int y) {
+        grilleCases[x][y].setMachine(null);
         setChanged();
         notifyObservers();
     }

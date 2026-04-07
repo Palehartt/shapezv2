@@ -2,6 +2,7 @@ package vuecontroleur;
 
 import modele.item.ItemShape;
 import modele.item.SubShape;
+import modele.item.ItemColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +13,7 @@ public class ImagePanel extends JPanel {
     private Image imgFront;
     private ItemShape shape;
     private ItemShape gissement;
+    private modele.item.Color color;
 
     private int spriteOffsetX = 0;
     private int spriteOffsetY = 0;
@@ -34,25 +36,48 @@ public class ImagePanel extends JPanel {
         spriteTotalH = 1;
     }
 
-    public void setGissement(ItemShape _gissement) { gissement = _gissement; }
+    public void setGissement(ItemShape _gissement) {
+        gissement = _gissement;
+        color = null;
+    }
+
+    public void setGissement(modele.item.Color _color) {
+        gissement = null;
+        color = _color; }
+
+    public void resetGissement() {
+        gissement = null;
+        color = null;
+    }
+
+    public void setItemColor(modele.item.Color _color) {
+        color = _color;
+    }
+
+    public void resetItemColor() {
+        color = null;
+    }
 
     public Image rotateImage(Image img, double angleDegrees) {
         int w = img.getWidth(null);
         int h = img.getHeight(null);
-        if (w < 0 || h < 0) return img; // safeguard si image non chargée
+        if (w < 0 || h < 0) return img;
 
-        BufferedImage rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        // Pour une rotation à 90° ou 270°, les dimensions s'inversent
+        boolean swap = (Math.abs(angleDegrees) % 180 != 0);
+        int newW = swap ? h : w;
+        int newH = swap ? w : h;
+
+        BufferedImage rotated = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = rotated.createGraphics();
 
-        // activer l'interpolation pour lisser la rotation
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // rotation autour du centre
-        g2d.rotate(Math.toRadians(angleDegrees), w / 2.0, h / 2.0);
-
-        // dessiner l'image
-        g2d.drawImage(img, 0, 0, null);
+        // Translation pour recentrer après rotation
+        g2d.translate(newW / 2.0, newH / 2.0);
+        g2d.rotate(Math.toRadians(angleDegrees));
+        g2d.drawImage(img, -w / 2, -h / 2, null);
 
         g2d.dispose();
         return rotated;
@@ -94,6 +119,21 @@ public class ImagePanel extends JPanel {
         if(gissement != null) {
             g.setColor(new Color(165, 165, 176, 100)); // plus opaque pour être visible
             g.fillRect(xBack, yBack, widthBack, heigthBack);
+        }
+
+        if(color != null) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+            switch(color) {
+                case Red    -> g.setColor(new Color(255, 80,  80, 100));
+                case Blue   -> g.setColor(new Color(80,  80,  255, 100));
+                case Green  -> g.setColor(new java.awt.Color(80,  200, 80, 100));
+                case Yellow -> g.setColor(new java.awt.Color(255, 230, 50, 100));
+                case Purple -> g.setColor(new java.awt.Color(180, 80,  255, 100));
+                default     -> g.setColor(new java.awt.Color(200, 200, 200, 100));
+            }
+            g2d.fillRect(xBack, yBack, widthBack, heigthBack);
+            //g.fillRect(xBack, yBack, widthBack, heigthBack);
         }
 
         if (imgBackground != null) {

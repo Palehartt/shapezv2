@@ -2,6 +2,8 @@ package modele.plateau;
 
 import modele.item.Item;
 import modele.item.ItemGisement;
+import modele.item.Color;
+import modele.item.ItemColor;
 import modele.item.ItemShape;
 import modele.item.SubShape;
 
@@ -24,8 +26,30 @@ public class Mine extends Machine {
                     i++;
                     current.add(new ItemShape("Rw"));
                 }
+            } else {
+                switch (((ItemGisement) item).getColor()) {
+                    case Red:
+                        if (new Random().nextInt(4) == 0) {
+                            i++;
+                            current.add(new ItemColor(Color.Red));
+                        }
+                        break;
+                    case Blue:
+                        if (new Random().nextInt(4) == 0) {
+                            i++;
+                            current.add(new ItemColor(Color.Blue));
+                        }
+                        break;
+                    case Green:
+                        if (new Random().nextInt(4) == 0) {
+                            i++;
+                            current.add(new ItemColor(Color.Green));
+                        }
+                        break;
+                    case None:
+                }
+                //System.out.println("Nouvel item à envoyer");
             }
-
         }
     }
 }

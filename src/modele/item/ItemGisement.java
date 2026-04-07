@@ -23,7 +23,7 @@ public class ItemGisement extends Item {
             case Carre:
                 return new ItemShape("CrCrCrCr");
             case Circle:
-                return new ItemShape("RrRrRrR");
+                return new ItemShape("RrRrRrRr");
             case None:
         }
         return null;

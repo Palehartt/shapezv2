@@ -65,19 +65,27 @@ public abstract class Machine implements Runnable {
     }*/
 
     public void send() {
-    Direction sendDir = d; // direction par défaut
-
+        Direction sendDir = d;
         if (this instanceof Tapis) {
             sendDir = ((Tapis) this).getOutputDirection();
         }
 
         Case next = c.plateau.getCase(c, sendDir);
-        if (next != null) {
-            Machine m = next.getMachine();
-            if (m != null && !current.isEmpty()) {
-                Item item = current.getFirst();
-                m.current.add(item);
+        if (next != null && !current.isEmpty()) {
+            Item item = current.getFirst();
+
+            if (next instanceof CaseHub caseHub) {
+                // Déposer dans la file de cette case spécifique
+                caseHub.itemsRecus.add(item);
                 current.remove(item);
+            } else {
+                Machine m = next.getMachine() != null
+                        ? next.getMachine()
+                        : next.getMachineEsclave();
+                if (m != null) {
+                    m.current.add(item);
+                    current.remove(item);
+                }
             }
         }
     }
