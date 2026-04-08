@@ -18,8 +18,8 @@ import java.util.Observable;
 
 public class Plateau extends Observable implements Runnable {
 
-    public static final int SIZE_X = 16;
-    public static final int SIZE_Y = 16;
+    public static final int SIZE_X = 20;
+    public static final int SIZE_Y = 20;
 
 
     private HashMap<Case, Point> map = new HashMap<Case, Point>(); // permet de récupérer la position d'une case à partir de sa référence
@@ -138,7 +138,22 @@ public class Plateau extends Observable implements Runnable {
         notifyObservers();
     }
 
+    // Dans Plateau.java
     public void removeMachine(int x, int y) {
+        Machine m = grilleCases[x][y].getMachine();
+        if (m != null) {
+            for (Case esclave : m.getCasesOccupees()) {
+                esclave.setMachineEsclave(null);
+                Point pos = map.get(esclave);
+                if (esclave instanceof CaseHub && pos != null) {
+                    Case newCase = new Case(this);
+                    grilleCases[pos.x][pos.y] = newCase;
+                    map.put(newCase, pos);
+                    map.remove(esclave);
+                }
+            }
+            m.getCasesOccupees().clear();
+        }
         grilleCases[x][y].setMachine(null);
         setChanged();
         notifyObservers();

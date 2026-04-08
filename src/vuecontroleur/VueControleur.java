@@ -39,6 +39,7 @@ public class VueControleur extends JFrame implements Observer {
     private Image icoPeintre;
     private Image icoMixer;
     private Image icoPivoteur;
+    private Image icoAssembleur;
 
     private Image icoGisementCarre;
     private Image icoGisementCercle;
@@ -95,6 +96,7 @@ public class VueControleur extends JFrame implements Observer {
         icoPivoteur =  new ImageIcon("./data/sprites/buildings/rotater.png").getImage();
         icoPeintre = new ImageIcon("./data/sprites/buildings/painter.png").getImage();
         icoMixer = new ImageIcon("./data/sprites/buildings/mixer.png").getImage();
+        icoAssembleur = new ImageIcon("./data/sprites/buildings/stacker.png").getImage();
 
         icoRed = new ImageIcon("./data/sprites/colors/red.png").getImage();
         icoBlue = new ImageIcon("./data/sprites/colors/blue.png").getImage();
@@ -224,6 +226,15 @@ public class VueControleur extends JFrame implements Observer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 objetChoisi = ObjetChoisi.Hub;
+//                mettreAJourAffichage();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), "assembleur");
+        am.put("assembleur", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                objetChoisi = ObjetChoisi.Assembleur;
 //                mettreAJourAffichage();
             }
         });
@@ -462,6 +473,35 @@ public class VueControleur extends JFrame implements Observer {
                             case East  -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
                             case West  -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY+1, totalW, totalH);
                         }
+                    } else if (m instanceof Assembleur ass) {
+                        Point posMain = plateau.getPosition(ass.getCase());
+                        int offsetX = x - posMain.x;
+                        int offsetY = y - posMain.y;
+
+                        int totalW = 0;
+                        int totalH = 0;
+
+                        switch (ass.getDirection()) {
+                            case North, South -> { totalW = 2; totalH = 1; }
+                            case East,  West  -> { totalW = 1; totalH = 2; }
+                        }
+
+                        double angle = switch (ass.getDirection()) {
+                            case North -> 0;
+                            case East -> 90;
+                            case South -> 180;
+                            case West -> 270;
+                        };
+
+                        Image spriteRotate = tabIP[x][y].rotateImage(icoAssembleur, angle);
+
+                        //System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
+                        switch (ass.getDirection()) {
+                            case North -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
+                            case South -> tabIP[x][y].setBackground(spriteRotate, offsetX+1, offsetY, totalW, totalH);
+                            case East  -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
+                            case West  -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY+1, totalW, totalH);
+                        }
                     } else if (m instanceof Hub gm) {
                         if(gm.getCompteur()>=5) {
                             gm.setCompteur(0);
@@ -518,6 +558,41 @@ public class VueControleur extends JFrame implements Observer {
                         };
 
                         tabIP[x][y].setBackground((tabIP[x][y].rotateImage(icoPivoteur, angle)));
+                    } else if (m instanceof Peintre peintre) {
+                        Point posMain = plateau.getPosition(peintre.getCase());
+                        int offsetX = x - posMain.x;
+                        int offsetY = y - posMain.y;
+
+                        int totalW = 0;
+                        int totalH = 0;
+
+                        switch (peintre.getDirection()) {
+                            case North, South -> {
+                                totalW = 2;
+                                totalH = 1;
+                            }
+                            case East, West -> {
+                                totalW = 1;
+                                totalH = 2;
+                            }
+                        }
+
+                        double angle = switch (peintre.getDirection()) {
+                            case North -> 0;
+                            case East -> 90;
+                            case South -> 180;
+                            case West -> 270;
+                        };
+
+                        Image spriteRotate = tabIP[x][y].rotateImage(icoPeintre, angle);
+
+                        //System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
+                        switch (peintre.getDirection()) {
+                            case North -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
+                            case South -> tabIP[x][y].setBackground(spriteRotate, offsetX + 1, offsetY, totalW, totalH);
+                            case East -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
+                            case West -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY + 1, totalW, totalH);
+                        }
                     }
 
                     Item current = m.getCurrent();

@@ -107,7 +107,7 @@ public abstract class Machine implements Runnable {
         }
     }
 
-    private void deposerDans(Case next, Item item) {
+    protected void deposerDans(Case next, Item item) {
         if (next instanceof CaseHub caseHub) {
             caseHub.itemsRecus.add(item);
         } else {

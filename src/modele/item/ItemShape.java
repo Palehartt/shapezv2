@@ -81,7 +81,22 @@ public class ItemShape extends Item {
 
         }
 
+        switch (str.charAt(1)) {
+            case 'r' : for (int i = 0; i < 4; i++) tabColors[i] = Color.Red; break;
+            case 'g': for (int i = 0; i < 4; i++) tabColors[i] = Color.Green; break;
+            case 'b': for (int i = 0; i < 4; i++) tabColors[i] = Color.Blue; break;
+            case 'y': for (int i = 0; i < 4; i++) tabColors[i] = Color.Yellow; break;
+            case 'p': for (int i = 0; i < 4; i++) tabColors[i] = Color.Purple; break;
+            case 'c': for (int i = 0; i < 4; i++) tabColors[i] = Color.Cyan; break;
+            case '-' : for (int i = 0; i < 4; i++) tabColors[i] = null; break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + str.charAt(1));
+        }
 
+    }
+
+    public static ItemShape fromArrays(SubShape[] shapes, Color[] colors) {
+        return new ItemShape(shapes, colors);
     }
 
     private ItemShape(SubShape[] shapes, Color[] colors) {

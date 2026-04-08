@@ -5,6 +5,7 @@ import modele.item.SubShape;
 import modele.plateau.*;
 import modele.item.ItemShape;
 
+import javax.swing.*;
 import java.util.List;
 
 public class Jeu extends Thread{
@@ -119,6 +120,16 @@ public class Jeu extends Thread{
                     m = new Pivoteur();
                     m.setDirection(d);
                     plateau.setMachine(x, y, m);
+                    break;
+                case Peintre:
+                    m = new Peintre();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m, Peintre.getOffsets(d));
+                case Assembleur:
+                    m = new Assembleur();
+                    m.setDirection(d);
+                    plateau.setMachine(x, y, m, Assembleur.getOffsets(d));
+                    m.initPorts();
                     break;
                 default:
                     plateau.setMachine(x, y, null);
