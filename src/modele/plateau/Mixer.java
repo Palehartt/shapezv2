@@ -9,6 +9,9 @@ public class Mixer extends Machine {
     private modele.item.Color pendingColor1 = null;
     private modele.item.Color pendingColor2 = null;
 
+    private modele.item.Item item1 = null;
+    private modele.item.Item item2 = null;
+
     public static List<Point> getOffsets(Direction d) {
         return switch (d) {
             case North -> List.of(new Point(1, 0));
@@ -19,51 +22,109 @@ public class Mixer extends Machine {
     }
 
     @Override
-    public void work() {
-        // Lire depuis la case principale (entrée 1)
-        if (!current.isEmpty() && current.getFirst() instanceof ItemColor) {
-            modele.item.Color c = ((ItemColor) current.removeFirst()).getColor();
-            if (pendingColor1 == null) {
-                pendingColor1 = c;
-                System.out.println("Premier" + pendingColor1.toString());
+    public void initPorts() {
+        ports.clear();
+        System.out.println("Case Esclave : " + casesOccupées.size());
+        Case esclave = casesOccupées.isEmpty() ? null : casesOccupées.get(0);
+        System.out.println("ADDING PORT IN PROGRESS : " + ports.size());
+
+        switch (d) {
+            case North -> {
+                ports.add(new Port(Direction.South, Port.Type.Entree, c));
+                if (esclave != null)
+                    ports.add(new Port(Direction.South, Port.Type.Entree, esclave));
+                ports.add(new Port(Direction.North, Port.Type.Sortie, c));
+            }
+            case East -> {
+                ports.add(new Port(Direction.West, Port.Type.Entree, c));
+                if (esclave != null)
+                    ports.add(new Port(Direction.West, Port.Type.Entree, esclave));
+                ports.add(new Port(Direction.East, Port.Type.Sortie, c));
+            }
+            case South -> {
+                ports.add(new Port(Direction.North, Port.Type.Entree, c));
+                if (esclave != null)
+                    ports.add(new Port(Direction.North, Port.Type.Entree, esclave));
+                ports.add(new Port(Direction.South, Port.Type.Sortie, c));
+            }
+            case West -> {
+                ports.add(new Port(Direction.East, Port.Type.Entree, c));
+                if (esclave != null)
+                    ports.add(new Port(Direction.East, Port.Type.Entree, esclave));
+                ports.add(new Port(Direction.West, Port.Type.Sortie, c));
             }
         }
+        System.out.println("ADDING PORT → total: " + ports.size());
+    }
 
-        // Lire depuis la case adjacente (entrée 2, sur le côté droit)
-        Direction droite = switch (d) {
-            case North -> Direction.East;
-            case East  -> Direction.South;
-            case South -> Direction.West;
-            case West  -> Direction.North;
-        };
+    @Override
+    public void work() {
+        /*System.out.println("TOTAL PORTS: " + ports.size());
+        System.out.println("Nb ports entrée: " + getPortsEntree().size());*/
+        List<Port> portsEntree = getPortsEntree();
 
-        Case caseEntree2 = c.plateau.getCase(c, droite);
+        // Collecter les items depuis les cases d'entrée via les ports
+        // Trier les items reçus
+        /*while (!current.isEmpty()) {
+            Item item = current.getFirst();
+            current.removeFirst();
 
-        if (caseEntree2 != null && caseEntree2.getMachineEsclave() != null) {
-            Machine m = caseEntree2.getMachineEsclave();
-            if (!m.current.isEmpty() && m.current.getFirst() instanceof ItemColor) {
-                System.out.println("Entrée sur la case esclave");
-                modele.item.Color col = ((ItemColor) m.current.removeFirst()).getColor();
+            if (item instanceof ItemColor) {
+                modele.item.Color col = ((ItemColor) item).getColor();
+                if (pendingColor1 == null) {
+                    pendingColor1 = col;
+                } else if (pendingColor2 == null) {
+                    pendingColor2 = col;
+                }
+            }
+        }*/
+        /*if(item1 == null) item1 = collecterEntrees(portsEntree.get(0));;
+        if(item2 == null) item2 = collecterEntrees(portsEntree.get(1));;*/
+
+        if (item1 == null) {
+            item1 = collecterEntrees(portsEntree.get(0));
+            ;
+            if (item1 instanceof ItemColor) {
+                modele.item.Color col = ((ItemColor) item1).getColor();
+                if (pendingColor1 == null) {
+                    pendingColor1 = col;
+                    System.out.println("Color 1 " + pendingColor1.toString());
+                }
+            }
+        } else if (item2 == null) {
+            item2 = collecterEntrees(portsEntree.get(1));
+            ;
+            if (item2 instanceof ItemColor) {
+                modele.item.Color col = ((ItemColor) item2).getColor();
                 if (pendingColor2 == null) {
                     pendingColor2 = col;
-                    System.out.println("Deuxième " + pendingColor2.toString());
+                    System.out.println("Color 2 " + pendingColor2.toString());
                 }
             }
         }
+    }
 
+    @Override
+    public void send() {
         // Si on a les deux couleurs, on mélange
         if (pendingColor1 != null && pendingColor2 != null) {
-            //System.out.println(pendingColor1.toString() + " " + pendingColor2.toString());
+            System.out.println("Color 1 " + pendingColor1.toString() + "Color 2 " + pendingColor2.toString());
             modele.item.Color result = melanger(pendingColor1, pendingColor2);
             if (result != null) {
-                current.add(new ItemColor(result));
+                Case next = c.plateau.getCase(c, d);
+                if (next != null && next.getMachine() != null) {
+                    next.getMachine().current.add(new ItemColor(result));
+                }
+                System.out.println("Nouvelle Couleur");
             }
+            item1 = null;
+            item2 = null;
             pendingColor1 = null;
             pendingColor2 = null;
         }
     }
 
-    @Override
+    /*@Override
     public void send() {
         if (current.isEmpty()) return;
 
@@ -72,7 +133,7 @@ public class Mixer extends Machine {
         if (next != null && next.getMachine() != null) {
             next.getMachine().current.add(current.removeFirst());
         }
-    }
+    }*/
 
     private modele.item.Color melanger(modele.item.Color c1, modele.item.Color c2) {
         if (c1 == c2) return c1;

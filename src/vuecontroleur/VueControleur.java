@@ -353,6 +353,7 @@ public class VueControleur extends JFrame implements Observer {
                 tabIP[x][y].setFront(null);
                 tabIP[x][y].setShape(null);
                 tabIP[x][y].resetGissement();
+                tabIP[x][y].resetHubInfo();
 
                 Case c = plateau.getCases()[x][y];
                 Machine m = c.getMachine();
@@ -364,14 +365,6 @@ public class VueControleur extends JFrame implements Observer {
 
                 if (g != null) {
                     if (g instanceof ItemGisement) {
-                        /*if  (((ItemGisement) g).getSubShape().equals(SubShape.Carre)) {
-                            tabIP[x][y].setBackground(icoGisementCarre);
-                        } else if (((ItemGisement) g).getSubShape().equals(SubShape.Circle)) {
-                            tabIP[x][y].setBackground(icoGisementCercle);
-                        } else if (((ItemGisement) g).getColor().equals(Color.Red)) {
-                            tabIP[x][y].setBackground(icoRed);
-                        }*/
-                        //tabIP[x][y].setBackground((Image) null);
                         if(((ItemGisement) g).getItemShape() != null) {
                             tabIP[x][y].setShape(((ItemGisement) g).getItemShape());
                             tabIP[x][y].setGissement(((ItemGisement) g).getItemShape());
@@ -462,7 +455,7 @@ public class VueControleur extends JFrame implements Observer {
 
                         Image spriteRotate = tabIP[x][y].rotateImage(icoCiseaux, angle);
 
-                        System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
+                        //System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
                         switch (ciseaux.getDirection()) {
                             case North -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
                             case South -> tabIP[x][y].setBackground(spriteRotate, offsetX+1, offsetY, totalW, totalH);
@@ -470,11 +463,22 @@ public class VueControleur extends JFrame implements Observer {
                             case West  -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY+1, totalW, totalH);
                         }
                     } else if (m instanceof Hub gm) {
+                        if(gm.getCompteur()>=5) {
+                            gm.setCompteur(0);
+                            jeu.setNiveau(jeu.getNiveau()+1);
+                            gm.changeLevel(jeu.getNiveau());
+                        }
                         Point posMain = plateau.getPosition(gm.getCase());
                         int offsetX = x - posMain.x;
                         int offsetY = y - posMain.y;
 
                         tabIP[x][y].setBackground(icoHub, offsetX, offsetY, 4, 4);
+
+                        tabIP[x][y].setHubInfo(offsetX, offsetY, 4, 4,
+                                "Niveau " + (1 + jeu.getNiveau()),
+                                gm.getFormeCible(),
+                                gm.getCompteur()
+                        );
                     } else if (m instanceof Mixer mixer) {
                         Point posMain = plateau.getPosition(mixer.getCase());
                         int offsetX = x - posMain.x;
@@ -497,7 +501,7 @@ public class VueControleur extends JFrame implements Observer {
 
                         Image spriteRotate = tabIP[x][y].rotateImage(icoMixer, angle);
 
-                        System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
+                        //System.out.println("OffsetX: " + offsetX +  " OffsetY: " + offsetY + " TotalW: " + totalW + " TotalH: " + totalH);
                         switch (mixer.getDirection()) {
                             case North -> tabIP[x][y].setBackground(spriteRotate, offsetX, offsetY, totalW, totalH);
                             case South -> tabIP[x][y].setBackground(spriteRotate, offsetX+1, offsetY, totalW, totalH);

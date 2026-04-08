@@ -13,6 +13,7 @@ public abstract class Machine implements Runnable {
     Case c;           // case principale
     List<Case> casesOccupées = new ArrayList<>(); // cases supplémentaires
     Direction d = Direction.North;
+    List<Port> ports = new ArrayList<>();
 
     public Machine()
     {
@@ -26,6 +27,22 @@ public abstract class Machine implements Runnable {
     public Machine(Item _item) {
         this();
         current.add(_item);
+    }
+
+    public void initPorts() {}
+
+    public List<Port> getPorts() { return ports; }
+
+    public List<Port> getPortsEntree() {
+        return ports.stream()
+                .filter(p -> p.getType() == Port.Type.Entree)
+                .toList();
+    }
+
+    public List<Port> getPortsSortie() {
+        return ports.stream()
+                .filter(p -> p.getType() == Port.Type.Sortie)
+                .toList();
     }
 
     public void setCase(Case _c) {
@@ -65,29 +82,61 @@ public abstract class Machine implements Runnable {
     }*/
 
     public void send() {
-        Direction sendDir = d;
-        if (this instanceof Tapis) {
-            sendDir = ((Tapis) this).getOutputDirection();
+        if (current.isEmpty()) return;
+
+        // Cas 1 : machine sans ports définis (Tapis, Mine, etc.)
+        if (ports.isEmpty()) {
+            Direction sendDir = d;
+            if (this instanceof Tapis) {
+                sendDir = ((Tapis) this).getOutputDirection();
+            }
+            Case next = c.plateau.getCase(c, sendDir);
+            if (next == null) return;
+            if (!current.isEmpty()) {
+                deposerDans(next, current.removeFirst());
+            }
+            return;
         }
 
-        Case next = c.plateau.getCase(c, sendDir);
-        if (next != null && !current.isEmpty()) {
-            Item item = current.getFirst();
+        // Cas 2 : machine avec ports définis (Ciseaux, Mixer, etc.)
+        for (Port port : getPortsSortie()) {
+            if (current.isEmpty()) break;
+            Case voisine = port.getCaseVoisine();
+            if (voisine == null) continue;
+            deposerDans(voisine, current.removeFirst());
+        }
+    }
 
-            if (next instanceof CaseHub caseHub) {
-                // Déposer dans la file de cette case spécifique
-                caseHub.itemsRecus.add(item);
-                current.remove(item);
-            } else {
-                Machine m = next.getMachine() != null
-                        ? next.getMachine()
-                        : next.getMachineEsclave();
-                if (m != null) {
-                    m.current.add(item);
-                    current.remove(item);
-                }
+    private void deposerDans(Case next, Item item) {
+        if (next instanceof CaseHub caseHub) {
+            caseHub.itemsRecus.add(item);
+        } else {
+            Machine m = next.getMachine() != null
+                    ? next.getMachine()
+                    : next.getMachineEsclave();
+            if (m != null) m.current.add(item);
+        }
+    }
+
+    private Item recupererDans(Case source) {
+        if (source instanceof CaseHub caseHub) {
+            return caseHub.itemsRecus.isEmpty() ? null : caseHub.itemsRecus.removeFirst();
+        } else {
+            Machine m = source.getMachine() != null
+                    ? source.getMachine()
+                    : source.getMachineEsclave();
+            if (m != null && !m.current.isEmpty()) {
+                return m.current.removeFirst();
             }
         }
+        return null;
+    }
+
+    public Item collecterEntrees(Port port) {
+            Case voisine = port.getCaseVoisine();
+            Item item = recupererDans(voisine);
+            if (item != null) return item;
+            else return null;
     }
 
     public void rotate() {

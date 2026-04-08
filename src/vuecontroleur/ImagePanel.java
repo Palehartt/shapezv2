@@ -19,6 +19,27 @@ public class ImagePanel extends JPanel {
     private int spriteOffsetY = 0;
     private int spriteTotalW = 1;
     private int spriteTotalH = 1;
+    private boolean isHub = false;
+    private int hubOffsetX, hubOffsetY, hubTotalW, hubTotalH;
+    private String hubNiveau;
+    private int hubCompteur;
+    private ItemShape hubForme;
+
+    public void setHubInfo(int offX, int offY, int totalW, int totalH,
+                           String niveau, ItemShape forme, int compteur) {
+        isHub = true;
+        hubOffsetX  = offX;
+        hubOffsetY  = offY;
+        hubTotalW   = totalW;
+        hubTotalH   = totalH;
+        hubNiveau   = niveau;
+        hubForme    = forme;
+        hubCompteur = compteur;
+    }
+
+    public void resetHubInfo() {
+        isHub = false;
+    }
 
     public ImagePanel() {
         setOpaque(true);
@@ -212,7 +233,95 @@ public class ImagePanel extends JPanel {
                     }
                 }
             }
+            if (isHub) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
 
+                int hubPixelW = getWidth()  * hubTotalW;
+                int hubPixelH = getHeight() * hubTotalH;
+                int hubOriginX = -hubOffsetX * getWidth();
+                int hubOriginY = -hubOffsetY * getHeight();
+                int cx = hubOriginX + hubPixelW / 2;
+                int cy = hubOriginY + hubPixelH / 2;
+
+                // --- Niveau ---
+                g2d.setFont(new Font("Arial", Font.BOLD, 16));
+                g2d.setColor(java.awt.Color.BLACK);
+                FontMetrics fm = g2d.getFontMetrics();
+                String niveauStr = hubNiveau;
+                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2 + 1, cy - 55 + 1);
+                g2d.setColor(java.awt.Color.WHITE);
+                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2, cy - 55);
+
+                // --- Compteur ---
+                g2d.setFont(new Font("Arial", Font.PLAIN, 14));
+                fm = g2d.getFontMetrics();
+                String compteurStr = "x" + hubCompteur;
+                g2d.setColor(java.awt.Color.BLACK);
+                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2 + 1, cy + 75 + 1);
+                g2d.setColor(java.awt.Color.WHITE);
+                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2, cy + 75);
+
+                // --- Forme cible (SubShapes) centrée dans le hub ---
+                if (hubForme != null) {
+                    SubShape[] tabS = hubForme.getSubShapes(ItemShape.Layer.one);
+                    modele.item.Color[] tabC = hubForme.getColors(ItemShape.Layer.one);
+
+                    // Taille de la forme affichée (ajustez selon vos goûts)
+                    int formeSize = Math.min(hubPixelW, hubPixelH) / 2;
+                    int halfCell  = formeSize / 2;
+
+                    // Coin haut-gauche de la zone forme, centrée dans le hub
+                    int fx = cx - formeSize / 2;
+                    int fy = cy - formeSize / 2;
+
+                    for (int i = 0; i < 4; i++) {
+                        SubShape ss = tabS[i];
+                        if (ss == SubShape.None) continue;
+
+                        // Même mapping que dans le paintComponent existant :
+                        // i=0 → haut-gauche, i=1 → bas-gauche, i=2 → bas-droite, i=3 → haut-droite
+                        int cellX = fx + (halfCell) * ((i >> 1) ^ 1);
+                        int cellY = fy + (halfCell) * ((i & 1) ^ ((i >> 1) & 1));
+                        int w = halfCell;
+                        int h = halfCell;
+
+                        // Couleur
+                        if (tabC[i] != null) {
+                            switch (tabC[i]) {
+                                case Red    -> g2d.setColor(java.awt.Color.RED);
+                                case Blue   -> g2d.setColor(java.awt.Color.BLUE);
+                                case Green  -> g2d.setColor(java.awt.Color.GREEN);
+                                case Yellow -> g2d.setColor(java.awt.Color.YELLOW);
+                                case Purple -> g2d.setColor(new java.awt.Color(128, 0, 128));
+                                case Cyan   -> g2d.setColor(java.awt.Color.CYAN);
+                                case White  -> g2d.setColor(java.awt.Color.WHITE);
+                                default     -> g2d.setColor(java.awt.Color.LIGHT_GRAY);
+                            }
+                        } else {
+                            g2d.setColor(java.awt.Color.LIGHT_GRAY);
+                        }
+
+                        switch (ss) {
+                            case Carre ->
+                                    g2d.fillRect(cellX, cellY, w, h);
+                            case Circle ->
+                                    g2d.fillOval(cellX, cellY, w, h);
+                            case QuartCircleTopRight ->
+                                    g2d.fillArc(cellX - w, cellY, w * 2, h * 2, 0, 90);
+                            case QuartCircleTopLeft ->
+                                    g2d.fillArc(cellX, cellY, w * 2, h * 2, 90, 90);
+                            case QuartCircleBottomLeft ->
+                                    g2d.fillArc(cellX, cellY - h, w * 2, h * 2, 180, 90);
+                            case QuartCircleBottomRight ->
+                                    g2d.fillArc(cellX - w, cellY - h, w * 2, h * 2, 270, 90);
+                        }
+                    }
+                }
+            }
         }
 
 

@@ -1,5 +1,6 @@
 package modele.plateau;
 
+import modele.item.Color;
 import modele.item.Item;
 import modele.item.ItemShape;
 import modele.item.SubShape;
@@ -10,17 +11,52 @@ import java.util.List;
 public class Hub extends Machine {
     private int compteur = 0;
     private List<SubShape> formesAcceptees = new ArrayList<>();
+    private ItemShape formeCible;
 
-    public Hub() {
-        super();
+    public ItemShape getFormeCible() {
+        return formeCible;
     }
 
-    public void addFormeAcceptee(SubShape shape) {
-        formesAcceptees.add(shape);
+    public Hub(int niveau) {
+        super();
+        changeLevel(niveau);
+    }
+
+    public void changeLevel(int niveau) {
+        if (niveau == 0)
+            formeCible = new ItemShape("CwCwCwCw");
+        else if (niveau == 1)
+            formeCible = new ItemShape("Cw--CwCw");
+        else if (niveau == 2)
+            formeCible = new ItemShape("Cw--CrCw");
+    }
+
+    public void setFormeAcceptee(ItemShape shape) {
+        formeCible = shape;
     }
 
     public int getCompteur() {
         return compteur;
+    }
+
+    public void setCompteur(int compteur) {
+        this.compteur = compteur;
+    }
+
+    public boolean verificationForme(ItemShape shape) {
+        if (shape == null)
+            return false;
+
+        SubShape[] sub = shape.getSubShapes(ItemShape.Layer.one);
+        SubShape[] cible = formeCible.getSubShapes(ItemShape.Layer.one);
+
+        Color[] subColor = shape.getColors(ItemShape.Layer.one);
+        Color[] cibleColor = formeCible.getColors(ItemShape.Layer.one);
+
+        if (sub[0] == cible[0] &&  sub[1] == cible[1] && sub[2] == cible[2] && sub[3] == cible[3])
+            return subColor[0] == cibleColor[0] && subColor[1] == cibleColor[1] && subColor[2] == cibleColor[2] && subColor[3] == cibleColor[3];
+
+        return false;
     }
 
     public static List<Point> getOffsets(Direction d) {
@@ -47,7 +83,8 @@ public class Hub extends Machine {
                         System.out.println(sub[1]);
                         System.out.println(sub[2]);
                         System.out.println(sub[3]);
-                        if(sub[0] == SubShape.Carre && sub[1] == SubShape.Carre &&  sub[2] == SubShape.Carre && sub[3] == SubShape.Carre) {
+                        if(verificationForme(shape)){
+//                                sub[0] == SubShape.Carre && sub[1] == SubShape.Carre &&  sub[2] == SubShape.Carre && sub[3] == SubShape.Carre) {
                             current.remove(item);
                             compteur++;
                             System.out.println("C'est good");
@@ -70,7 +107,8 @@ public class Hub extends Machine {
                 System.out.println(sub[1]);
                 System.out.println(sub[2]);
                 System.out.println(sub[3]);
-                if(sub[0] == SubShape.Carre && sub[1] == SubShape.Carre &&  sub[2] == SubShape.Carre && sub[3] == SubShape.Carre) {
+                if(verificationForme(shape)){
+//                        sub[0] == SubShape.Carre && sub[1] == SubShape.Carre &&  sub[2] == SubShape.Carre && sub[3] == SubShape.Carre) {
                     current.remove(item);
                     compteur++;
                     System.out.println("C'est good");

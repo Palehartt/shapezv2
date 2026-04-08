@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Jeu extends Thread{
     private Plateau plateau;
+    private int niveau = 0;
 
     private int lastX = -1; //Detection du déplacement de la souris lors du Drag and Drop
     private int lastY = -1;
@@ -19,6 +20,14 @@ public class Jeu extends Thread{
         environnement(plateau);
         start();
 
+    }
+
+    public int getNiveau() {
+        return niveau;
+    }
+
+    public void setNiveau(int niveau) {
+        this.niveau = niveau;
     }
 
     public void environnement(Plateau plateau) {
@@ -44,7 +53,7 @@ public class Jeu extends Thread{
             for(int j=emplacement_color_yy; j<emplacement_color_yy+3; j++)
                 plateau.setGisement(i, j, Color.Blue);
 
-        plateau.setMachine(4, 4, new Hub(), Hub.getOffsets(Direction.North));
+        plateau.setMachine(4, 4, new Hub(0), Hub.getOffsets(Direction.North));
     }
 
     public Plateau getPlateau() {
@@ -96,7 +105,7 @@ public class Jeu extends Thread{
                     plateau.setMachine(x, y, m, Ciseaux.getOffsets(d));
                     break;
                 case Hub:
-                    m = new Hub();
+                    m = new Hub(0);
                     m.setDirection(d);
                     plateau.setMachine(x, y, m, Hub.getOffsets(d));
                     break;
@@ -104,6 +113,7 @@ public class Jeu extends Thread{
                     m = new Mixer();
                     m.setDirection(d);
                     plateau.setMachine(x, y, m, Mixer.getOffsets(d));
+                    m.initPorts();
                     break;
                 case Pivoteur:
                     m = new Pivoteur();

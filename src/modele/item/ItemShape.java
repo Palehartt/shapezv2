@@ -44,31 +44,43 @@ public class ItemShape extends Item {
         tabSubShapes = new SubShape[4];
         tabColors = new Color[4];
 
+        for (int i = 0; i < 4; i++) { // fait uniquement pour la première couche
+            switch (str.charAt(i*2)) {
+                case 'C' : tabSubShapes[i] = SubShape.Carre;
+                    break;
+                case 'R' :
+                    switch (i) {
+                        case 0:
+                            tabSubShapes[i] = SubShape.QuartCircleTopRight;
+                            break;
+                        case 1:
+                            tabSubShapes[i] = SubShape.QuartCircleBottomRight;
+                            break;
+                        case 2:
+                            tabSubShapes[i] = SubShape.QuartCircleBottomLeft;
+                            break;
+                        case 3:
+                            tabSubShapes[i] = SubShape.QuartCircleTopLeft;
+                            break;
+                        default:
+                    }
+                    break;
+                case '-' : tabSubShapes[i] = SubShape.None;break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + str.charAt(i));
+            }
 
-        switch (str.charAt(0)) {
-            case 'C' :
-                for (int i = 0; i < 4; i++) tabSubShapes[i] = SubShape.Carre;
-                break;
-            case 'F' : for (int i = 0; i < 4; i++) tabSubShapes[i] = SubShape.Fan;break;
-            case 'S' : for (int i = 0; i < 4; i++) tabSubShapes[i] = SubShape.Star;break;
-            case 'R' :
-                tabSubShapes[0] = SubShape.QuartCircleTopRight;
-                tabSubShapes[1] = SubShape.QuartCircleBottomRight;
-                tabSubShapes[2] = SubShape.QuartCircleBottomLeft;
-                tabSubShapes[3] = SubShape.QuartCircleTopLeft;
-                break;
-            case '-' : for (int i = 0; i < 4; i++) tabSubShapes[i] = SubShape.None;break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + str.charAt(0));
+            switch (str.charAt((i*2 + 1))) {
+                case 'r' : tabColors[i] = Color.Red; break;
+                case 'w' : tabColors[i] = Color.White; break;
+                case '-' : tabColors[i] = null; break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + str.charAt((i + 1)*2));
+            }
+
+
         }
 
-        switch (str.charAt(1)) {
-            case 'r' : for (int i = 0; i < 4; i++) tabColors[i] = Color.Red; break;
-            case 'w' : for (int i = 0; i < 4; i++) tabColors[i] = Color.White; break;
-            case '-' : for (int i = 0; i < 4; i++) tabColors[i] = null; break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + str.charAt(1));
-        }
 
     }
 

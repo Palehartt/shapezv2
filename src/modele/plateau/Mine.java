@@ -19,12 +19,12 @@ public class Mine extends Machine {
             if (((ItemGisement) item).getSubShape().equals(SubShape.Carre)) {
                 if (new Random().nextInt(4) == 0) {
                     i++;
-                    current.add(new ItemShape("Cw"));
+                    current.add(new ItemShape("CwCwCwCw"));
                 }
             } else if (((ItemGisement) item).getSubShape().equals(SubShape.Circle)) {
                 if (new Random().nextInt(4) == 0) {
                     i++;
-                    current.add(new ItemShape("Rw"));
+                    current.add(new ItemShape("RwRwRwRw"));
                 }
             } else {
                 switch (((ItemGisement) item).getColor()) {
