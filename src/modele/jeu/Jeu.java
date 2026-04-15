@@ -12,6 +12,8 @@ public class Jeu extends Thread{
     private Plateau plateau;
     private int niveau = 0;
 
+    private int tick = 1000;
+
     private int lastX = -1; //Detection du déplacement de la souris lors du Drag and Drop
     private int lastY = -1;
 
@@ -21,6 +23,10 @@ public class Jeu extends Thread{
         environnement(plateau);
         start();
 
+    }
+
+    public void setTick(int tick) {
+        this.tick = tick;
     }
 
     public int getNiveau() {
@@ -33,28 +39,32 @@ public class Jeu extends Thread{
 
     public void environnement(Plateau plateau) {
         // génération de 5 gisements
-        int emplacement_color_x = 13;
-        int emplacement_color_y = 13;
+        int emplacement_color_x = 8;
+        int emplacement_color_y = plateau.getSize()[1]-3;
 
-        int emplacement_color_xx = 10;
-        int emplacement_color_yy = 10;
+        int emplacement_color_xx = 0;
+        int emplacement_color_yy = 0;
 
         int emplacement_shape_x = 0;
-        int emplacement_shape_y = 13;
+        int emplacement_shape_y = plateau.getSize()[1]-3;
 
         for(int i=emplacement_shape_x; i<emplacement_shape_x+3; i++)
             for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
-                plateau.setGisement(i, j, SubShape.Carre);
+                plateau.setGisement(i, j, Color.Red);
+
+        for(int i=emplacement_shape_x+4; i<emplacement_shape_x+7; i++)
+            for(int j=emplacement_shape_y; j<emplacement_shape_y+3; j++)
+                plateau.setGisement(i, j, SubShape.Circle);
 
         for(int i=emplacement_color_x; i<emplacement_color_x+3; i++)
             for(int j=emplacement_color_y; j<emplacement_color_y+3; j++)
-                plateau.setGisement(i, j, Color.Red);
+                plateau.setGisement(i, j, SubShape.Carre);
 
         for(int i=emplacement_color_xx; i<emplacement_color_xx+3; i++)
             for(int j=emplacement_color_yy; j<emplacement_color_yy+3; j++)
                 plateau.setGisement(i, j, Color.Blue);
 
-        plateau.setMachine(4, 4, new Hub(0), Hub.getOffsets(Direction.North));
+        plateau.setMachine(plateau.getSize()[0]-7, 3, new Hub(0), Hub.getOffsets(Direction.North));
     }
 
     public Plateau getPlateau() {
@@ -125,6 +135,8 @@ public class Jeu extends Thread{
                     m = new Peintre();
                     m.setDirection(d);
                     plateau.setMachine(x, y, m, Peintre.getOffsets(d));
+                    m.initPorts();
+                    break;
                 case Assembleur:
                     m = new Assembleur();
                     m.setDirection(d);
@@ -194,7 +206,7 @@ public class Jeu extends Thread{
         while(true) {
             try {
                 plateau.run();
-                Thread.sleep(1000);
+                Thread.sleep(tick);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

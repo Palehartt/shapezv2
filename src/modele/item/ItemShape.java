@@ -72,27 +72,18 @@ public class ItemShape extends Item {
 
             switch (str.charAt((i*2 + 1))) {
                 case 'r' : tabColors[i] = Color.Red; break;
+                case 'g':  tabColors[i] = Color.Green; break;
+                case 'b':  tabColors[i] = Color.Blue; break;
+                case 'y':  tabColors[i] = Color.Yellow; break;
+                case 'p':  tabColors[i] = Color.Purple; break;
+                case 'c':  tabColors[i] = Color.Cyan; break;
                 case 'w' : tabColors[i] = Color.White; break;
                 case '-' : tabColors[i] = null; break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + str.charAt((i + 1)*2));
             }
 
-
         }
-
-        switch (str.charAt(1)) {
-            case 'r' : for (int i = 0; i < 4; i++) tabColors[i] = Color.Red; break;
-            case 'g': for (int i = 0; i < 4; i++) tabColors[i] = Color.Green; break;
-            case 'b': for (int i = 0; i < 4; i++) tabColors[i] = Color.Blue; break;
-            case 'y': for (int i = 0; i < 4; i++) tabColors[i] = Color.Yellow; break;
-            case 'p': for (int i = 0; i < 4; i++) tabColors[i] = Color.Purple; break;
-            case 'c': for (int i = 0; i < 4; i++) tabColors[i] = Color.Cyan; break;
-            case '-' : for (int i = 0; i < 4; i++) tabColors[i] = null; break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + str.charAt(1));
-        }
-
     }
 
     public static ItemShape fromArrays(SubShape[] shapes, Color[] colors) {
@@ -108,7 +99,7 @@ public class ItemShape extends Item {
         ItemShape half1, half2;
 
         switch (d) {
-            case North, South -> {
+            case North -> {
                 // Coupe verticale : droite (0,1) et gauche (2,3)
                 half1 = new ItemShape(
                         new SubShape[]{tabSubShapes[0], tabSubShapes[1], SubShape.None, SubShape.None},
@@ -119,13 +110,35 @@ public class ItemShape extends Item {
                         new Color[]   {null,          null,          tabColors[2],    tabColors[3]}
                 );
             }
-            case East, West -> {
+            case South -> {
+                // Coupe verticale : droite (0,1) et gauche (2,3)
+                half2 = new ItemShape(
+                        new SubShape[]{tabSubShapes[0], tabSubShapes[1], SubShape.None, SubShape.None},
+                        new Color[]   {tabColors[0],    tabColors[1],    null,          null}
+                );
+                half1 = new ItemShape(
+                        new SubShape[]{SubShape.None, SubShape.None, tabSubShapes[2], tabSubShapes[3]},
+                        new Color[]   {null,          null,          tabColors[2],    tabColors[3]}
+                );
+            }
+            case West -> {
                 // Coupe horizontale : haut (0,3) et bas (1,2)
                 half1 = new ItemShape(
                         new SubShape[]{tabSubShapes[0], SubShape.None, SubShape.None, tabSubShapes[3]},
                         new Color[]   {tabColors[0],    null,          null,          tabColors[3]}
                 );
                 half2 = new ItemShape(
+                        new SubShape[]{SubShape.None, tabSubShapes[1], tabSubShapes[2], SubShape.None},
+                        new Color[]   {null,          tabColors[1],    tabColors[2],    null}
+                );
+            }
+            case East -> {
+                // Coupe horizontale : haut (0,3) et bas (1,2)
+                half2 = new ItemShape(
+                        new SubShape[]{tabSubShapes[0], SubShape.None, SubShape.None, tabSubShapes[3]},
+                        new Color[]   {tabColors[0],    null,          null,          tabColors[3]}
+                );
+                half1 = new ItemShape(
                         new SubShape[]{SubShape.None, tabSubShapes[1], tabSubShapes[2], SubShape.None},
                         new Color[]   {null,          tabColors[1],    tabColors[2],    null}
                 );

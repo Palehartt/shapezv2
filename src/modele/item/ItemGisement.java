@@ -21,9 +21,9 @@ public class ItemGisement extends Item {
     public ItemShape getItemShape() {
         switch (subShape) {
             case Carre:
-                return new ItemShape("CrCrCrCr");
+                return new ItemShape("CwCwCwCw");
             case Circle:
-                return new ItemShape("RrRrRrRr");
+                return new ItemShape("RwRwRwRw");
             case None:
         }
         return null;

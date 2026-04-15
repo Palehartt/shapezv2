@@ -26,8 +26,10 @@ public class Hub extends Machine {
         if (niveau == 0)
             formeCible = new ItemShape("CwCwCwCw");
         else if (niveau == 1)
-            formeCible = new ItemShape("Cw--CwCw");
+            formeCible = new ItemShape("CrCrCrCr");
         else if (niveau == 2)
+            formeCible = new ItemShape("RpRpRpRp");
+        else if (niveau == 3)
             formeCible = new ItemShape("Cw--CrCw");
     }
 

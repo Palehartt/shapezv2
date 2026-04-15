@@ -18,8 +18,8 @@ import java.util.Observable;
 
 public class Plateau extends Observable implements Runnable {
 
-    public static final int SIZE_X = 20;
-    public static final int SIZE_Y = 20;
+    public static final int SIZE_X = 25;
+    public static final int SIZE_Y = 14;
 
 
     private HashMap<Case, Point> map = new HashMap<Case, Point>(); // permet de récupérer la position d'une case à partir de sa référence
@@ -27,6 +27,10 @@ public class Plateau extends Observable implements Runnable {
 
     public Plateau() {
         initPlateauVide();
+    }
+
+    public int[] getSize(){
+        return new int[]{SIZE_X, SIZE_Y};
     }
 
     public Case[][] getCases() {

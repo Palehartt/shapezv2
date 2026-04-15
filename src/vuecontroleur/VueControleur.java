@@ -25,7 +25,7 @@ public class VueControleur extends JFrame implements Observer {
     private Jeu jeu;
     private final int sizeX; // taille de la grille affichée
     private final int sizeY;
-    private static final int pxCase = 82; // nombre de pixel par case
+    private static final int pxCase = 60; // nombre de pixel par case
     // icones affichées dans la grille
     private Image icoRouge;
     private Image icoTapisHaut;
@@ -239,6 +239,23 @@ public class VueControleur extends JFrame implements Observer {
             }
         });
 
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "accelerate");
+        am.put("accelerate", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jeu.setTick(200);
+//               mettreAJourAffichage();
+            }
+        });
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT_PARENTHESIS, 0), "deccelerate");
+        am.put("deccelerate", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jeu.setTick(1000);
+//               mettreAJourAffichage();
+            }
+        });
+
         tabIP = new ImagePanel[sizeX][sizeY];
 
 
@@ -251,47 +268,45 @@ public class VueControleur extends JFrame implements Observer {
                 final int xx = x; // permet de compiler la classe anonyme ci-dessous
                 final int yy = y;
                 // écouteur de clics
-                if (plateau.getCases()[x][y].getMachine() == null && plateau.getCases()[x][y].getMachineEsclave() == null) {
-                    iP.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            mousePressed = false;
+                iP.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        mousePressed = false;
+                        if (SwingUtilities.isRightMouseButton(e)) {
+                            jeu.supprimer(xx, yy);
+                        } else if (plateau.getCases()[xx][yy].getMachine() == null && plateau.getCases()[xx][yy].getMachineEsclave() == null) {
+                            jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
+                        }
+                        System.out.println(xx + "-" + yy);
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        mousePressed = true;
+                        if (SwingUtilities.isRightMouseButton(e)) {
+                            jeu.supprimer(xx, yy);
+                        } else if (plateau.getCases()[xx][yy].getMachine() == null && plateau.getCases()[xx][yy].getMachineEsclave() == null) {
+                            jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
+                        }
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        if (mousePressed) {
                             if (SwingUtilities.isRightMouseButton(e)) {
                                 jeu.supprimer(xx, yy);
-                            } else {
-                                jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
-                            }
-                            System.out.println(xx + "-" + yy);
-                        }
-
-                        @Override
-                        public void mousePressed(MouseEvent e) {
-                            mousePressed = true;
-                            if (SwingUtilities.isRightMouseButton(e)) {
-                                jeu.supprimer(xx, yy);
-                            } else {
-                                jeu.press(xx, yy, objetChoisi, directionObjetChoisi);
+                            } else if (plateau.getCases()[xx][yy].getMachine() == null && plateau.getCases()[xx][yy].getMachineEsclave() == null) {
+                                jeu.slide(xx, yy);
                             }
                         }
+                    }
 
-                        @Override
-                        public void mouseEntered(MouseEvent e) {
-                            if(mousePressed) {
-                                if (SwingUtilities.isRightMouseButton(e)) {
-                                    jeu.supprimer(xx, yy);
-                                } else {
-                                    jeu.slide(xx, yy);
-                                }
-                            }
-                        }
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        mousePressed = false;
 
-                        @Override
-                        public void mouseReleased(MouseEvent e) {
-                            mousePressed = false;
-
-                        }
-                    });
-                }
+                    }
+                });
 
                 grilleIP.add(iP);
             }
@@ -310,7 +325,10 @@ public class VueControleur extends JFrame implements Observer {
                 {"Tapis",     "Tapis"},
                 {"Ciseaux",   "Ciseaux"},
                 {"Poubelle",  "Poubelle"},
-                {"Livraison", "Livraison"},
+                {"Pivoteur", "Pivoteur"},
+                {"Peintre", "Peintre"},
+                {"Assembleur", "Assembleur"},
+                {"Mixer", "Mixer"},
         };
 
         ButtonGroup groupMachines = new ButtonGroup();
@@ -325,6 +343,10 @@ public class VueControleur extends JFrame implements Observer {
                     case "Ciseaux"   -> objetChoisi = ObjetChoisi.Ciseaux;
                     case "Poubelle"  -> objetChoisi = ObjetChoisi.Poubelle;
                     case "Livraison" -> objetChoisi = ObjetChoisi.Livraison;
+                    case "Peintre"     -> objetChoisi = ObjetChoisi.Peintre;
+                    case "Assembleur" -> objetChoisi = ObjetChoisi.Assembleur;
+                    case "Mixer"    -> objetChoisi = ObjetChoisi.Mixer;
+                    case "Pivoteur"  -> objetChoisi = ObjetChoisi.Pivoteur;
                 }
             });
             menu.add(btn);
@@ -596,6 +618,10 @@ public class VueControleur extends JFrame implements Observer {
                     }
 
                     Item current = m.getCurrent();
+
+                    if(m != null || c.getMachineEsclave() != null){
+                        if(!(m instanceof Tapis)) current = null;
+                    }
 
                     if (current instanceof ItemShape) {
                         tabIP[x][y].setShape((ItemShape) current);

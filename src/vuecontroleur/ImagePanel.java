@@ -191,10 +191,27 @@ public class ImagePanel extends JPanel {
                             case modele.item.Color.Red:
                                 g.setColor(Color.RED);
                                 break;
-                            case modele.item.Color.White:
+                            case Green:
+                                g.setColor(Color.GREEN);
+                                break;
+                            case Blue:
+                                g.setColor(Color.BLUE);
+                                break;
+                            case Yellow:
+                                g.setColor(Color.YELLOW);
+                                break;
+                            case Purple:
+                                g.setColor(new Color(128, 0, 128));
+                                break;
+                            case Cyan:
+                                g.setColor(Color.CYAN);
+                                break;
+                            case White:
                                 g.setColor(Color.WHITE);
                                 break;
-                            // TODO autres couleurs
+                            case None:
+                                g.setColor(Color.BLACK);
+                                break;
                         }
 
                         int x = xFront + (widthFront / 2) * ((i >> 1) ^ 1);
@@ -248,22 +265,22 @@ public class ImagePanel extends JPanel {
                 int cy = hubOriginY + hubPixelH / 2;
 
                 // --- Niveau ---
-                g2d.setFont(new Font("Arial", Font.BOLD, 16));
+                g2d.setFont(new Font("Arial", Font.BOLD, 20));
                 g2d.setColor(java.awt.Color.BLACK);
                 FontMetrics fm = g2d.getFontMetrics();
                 String niveauStr = hubNiveau;
-                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2 + 1, cy - 55 + 1);
+                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2 + 1, cy/2 - 10);
                 g2d.setColor(java.awt.Color.WHITE);
-                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2, cy - 55);
+                g2d.drawString(niveauStr, cx - fm.stringWidth(niveauStr)/2 + 1, cy/2 - 12);
 
                 // --- Compteur ---
-                g2d.setFont(new Font("Arial", Font.PLAIN, 14));
+                g2d.setFont(new Font("Arial", Font.PLAIN, 20));
                 fm = g2d.getFontMetrics();
                 String compteurStr = "x" + hubCompteur;
                 g2d.setColor(java.awt.Color.BLACK);
-                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2 + 1, cy + 75 + 1);
+                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2 + 1, cy + 86);
                 g2d.setColor(java.awt.Color.WHITE);
-                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2, cy + 75);
+                g2d.drawString(compteurStr, cx - fm.stringWidth(compteurStr)/2 + 1, cy + 85);
 
                 // --- Forme cible (SubShapes) centrée dans le hub ---
                 if (hubForme != null) {
@@ -296,7 +313,7 @@ public class ImagePanel extends JPanel {
                                 case Blue   -> g2d.setColor(java.awt.Color.BLUE);
                                 case Green  -> g2d.setColor(java.awt.Color.GREEN);
                                 case Yellow -> g2d.setColor(java.awt.Color.YELLOW);
-                                case Purple -> g2d.setColor(new java.awt.Color(128, 0, 128));
+                                case Purple -> g2d.setColor(new java.awt.Color(232, 2, 232));
                                 case Cyan   -> g2d.setColor(java.awt.Color.CYAN);
                                 case White  -> g2d.setColor(java.awt.Color.WHITE);
                                 default     -> g2d.setColor(java.awt.Color.LIGHT_GRAY);
